@@ -1,0 +1,90 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  password      String
+  fullName      String
+  dateOfBirth   DateTime?
+  hobbies       String?
+  career        String?
+  location      String?
+  role          String   @default("member")
+  familyId      String
+  family        Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  addedItems    ShoppingItem[]
+
+  @@map("users")
+}
+
+model Family {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  members   User[]
+  shoppingLists ShoppingList[]
+  archivedLists ArchivedShoppingList[]
+
+  @@map("families")
+}
+
+model ShoppingList {
+  id          String   @id @default(cuid())
+  familyId    String
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  weekStart   DateTime
+  weekEnd     DateTime
+  isArchived  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items       ShoppingItem[]
+
+  @@unique([familyId, weekStart])
+  @@map("shopping_lists")
+}
+
+model ShoppingItem {
+  id             String   @id @default(cuid())
+  name           String
+  quantity       Int      @default(1)
+  category       String?  @default("Other")
+  completed      Boolean  @default(false)
+  skipped        Boolean  @default(false)
+  addedById      String
+  addedBy        User     @relation(fields: [addedById], references: [id], onDelete: Cascade)
+  shoppingListId String
+  shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@map("shopping_items")
+}
+
+model ArchivedShoppingList {
+  id          String   @id @default(cuid())
+  familyId    String
+  family      Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  weekStart   DateTime
+  weekEnd     DateTime
+  items       Json
+  totalItems  Int
+  completedItems Int
+  skippedItems   Int
+  archivedAt  DateTime @default(now())
+
+  @@map("archived_shopping_lists")
+}
