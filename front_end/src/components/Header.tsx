@@ -74,7 +74,6 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Overlay when dropdown is open */}
       {showLogoutConfirm && (
         <div 
           className="fixed inset-0 z-40"

@@ -42,7 +42,6 @@ interface AppState {
   familyMembers: any[];
   currentList: any;
   
-  // Actions
   login: (email: string, password: string) => Promise<void>;
   signup: (userData: any) => Promise<void>;
   addItem: (name: string, quantity?: number, category?: string) => Promise<void>;
@@ -148,7 +147,6 @@ export const useStore = create<AppState>()(
           const data = await response.json();
 
           if (response.ok) {
-            // Reload the current list to get updated items
             await get().loadCurrentList();
           } else {
             throw new Error(data.error || 'Failed to add item');
