@@ -1,37 +1,24 @@
-name: Run Backend with PM2
+name: Test Project
 
 on:
-  push:
-    branches: [main, development]
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  run-backend:
+  test:
     runs-on: ubuntu-latest
-    
+    container:
+      image: node:22
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-        
-    - name: Install dependencies
-      run: |
-        cd back_end
-        npm install
-        
-    - name: Install PM2
-      run: npm install -g pm2
-        
-    - name: Run backend with PM2
-      env:
-        DATABASE_URL: ${{ secrets.DATABASE_URL }}
-        JWT_SECRET: ${{ secrets.JWT_SECRET }}
-        PORT: 3001
-      run: |
-        cd back_end
-        pm2 start src/server.js --name "famlist-backend"
-        sleep 5
-        pm2 list
+      - uses: actions/checkout@v3
+        with:
+          node-version: '22'
+      - run: |
+          npm ci
+          npm test
+          npm run build
+          
+  
+
+ 
